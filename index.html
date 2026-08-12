@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e4dff">
+  <meta name="description" content="Teste Inteligente de Inglês All Net — nivelamento adaptativo de Pré-A1 a C2.">
+  <title>All Net | Teste Inteligente de Inglês</title>
+  <style>
+    :root {
+      --navy: #0e4dff;
+      --navy-2: #0939bd;
+      --blue: #0e4dff;
+      --cyan: #ed4e23;
+      --yellow: #ffb026;
+      --cream: #f5f7ff;
+      --white: #ffffff;
+      --ink: #172552;
+      --muted: #647092;
+      --line: #dce3f7;
+      --success: #138a61;
+      --danger: #b42318;
+      --shadow: 0 20px 55px rgba(14, 77, 255, .13);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 4%, rgba(14,77,255,.12), transparent 27rem),
+        radial-gradient(circle at 7% 82%, rgba(237,78,35,.10), transparent 24rem),
+        var(--cream);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 4px solid rgba(14,77,255,.23);
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px clamp(20px, 5vw, 72px);
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid rgba(223,230,239,.9);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand { display: flex; align-items: center; gap: 16px; color: var(--navy); }
+    .brand-logo, .result-logo {
+      position: relative;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+    .brand-logo { width: 220px; height: 70px; }
+    .brand-logo img { position: absolute; width: 330px; max-width: none; left: -59px; top: -59px; }
+    .brand-copy { padding-left: 16px; border-left: 1px solid var(--line); font-size: 14px; font-weight: 850; line-height: 1.2; }
+    .brand-copy small { display: block; margin-top: 4px; color: var(--muted); font-weight: 700; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
+    .prototype-chip { padding: 9px 13px; border-radius: 999px; color: white; background: var(--cyan); box-shadow: 0 8px 20px rgba(237,78,35,.2); font-weight: 800; font-size: 12px; }
+
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 38px 0 70px; }
+    .screen { display: none; animation: enter .35s ease both; }
+    .screen.active { display: block; }
+    @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: clamp(30px, 7vw, 90px);
+      align-items: center;
+      min-height: calc(100vh - 190px);
+    }
+    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: .13em; font-weight: 850; font-size: 13px; }
+    h1 { margin: 12px 0 20px; max-width: 780px; color: var(--navy-2); font-size: clamp(42px, 6.7vw, 78px); line-height: .98; letter-spacing: -.045em; }
+    h1 span { color: var(--cyan); position: relative; white-space: nowrap; }
+    h1 span::after { content: ""; position: absolute; left: 2%; right: 2%; bottom: -.09em; height: .09em; border-radius: 99px; background: var(--cyan); opacity: .28; transform: rotate(-1deg); }
+    .lead { max-width: 680px; color: var(--muted); font-size: clamp(18px, 2vw, 22px); line-height: 1.55; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .btn {
+      min-height: 50px;
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      font-weight: 800;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: var(--navy); box-shadow: 0 12px 24px rgba(14,77,255,.22); }
+    .btn-primary:hover { background: var(--navy-2); }
+    .btn-secondary { color: var(--navy); background: white; border: 1px solid var(--line); }
+    .btn-cyan { color: white; background: var(--cyan); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .hero-panel {
+      position: relative;
+      min-height: 500px;
+      padding: 30px;
+      border-radius: 32px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #0936ad, var(--navy));
+      box-shadow: var(--shadow);
+      color: white;
+    }
+    .hero-panel::before { content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%; right: -80px; top: -80px; background: rgba(237,78,35,.26); }
+    .hero-panel::after { content: ""; position: absolute; width: 170px; height: 170px; border-radius: 50%; left: -50px; bottom: -60px; background: rgba(255,176,38,.24); }
+    .panel-content { position: relative; z-index: 1; }
+    .mini-label { display: inline-block; padding: 7px 10px; border-radius: 9px; background: rgba(255,255,255,.1); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .hero-panel h2 { font-size: 30px; margin: 18px 0 8px; }
+    .hero-panel p { color: #dbe8f5; line-height: 1.6; }
+    .skill-orbit { margin-top: 28px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .skill-card { padding: 17px; border-radius: 16px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.12); }
+    .skill-card strong { display: block; margin-top: 8px; }
+    .level-line { margin-top: 25px; display: flex; align-items: center; gap: 7px; }
+    .level-dot { flex: 1; height: 8px; border-radius: 20px; background: rgba(255,255,255,.18); }
+    .level-dot:nth-child(-n+3) { background: var(--cyan); box-shadow: 0 0 0 2px rgba(255,255,255,.12); }
+    .level-labels { display: flex; justify-content: space-between; margin-top: 7px; font-size: 11px; color: #c8d8e8; }
+
+    .info-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 34px; }
+    .info-item { background: white; border: 1px solid var(--line); padding: 17px; border-radius: 16px; }
+    .info-item strong { color: var(--navy); display: block; }
+    .info-item span { color: var(--muted); font-size: 13px; }
+
+    .test-shell { max-width: 980px; margin: 0 auto; }
+    .progress-wrap { margin-bottom: 22px; }
+    .progress-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .progress-track { height: 9px; background: #e5ebf2; border-radius: 99px; overflow: hidden; }
+    .progress-fill { width: 0; height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); transition: width .35s ease; }
+
+    .paper { background: white; border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(24px, 5vw, 50px); box-shadow: var(--shadow); }
+    .section-icon { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 17px; color: white; background: linear-gradient(135deg, var(--navy), #487aff); box-shadow: 0 9px 20px rgba(14,77,255,.18); font-size: 24px; }
+    .paper h2 { margin: 14px 0 8px; color: var(--navy-2); font-size: clamp(27px, 4vw, 39px); letter-spacing: -.02em; }
+    .subtitle { margin: 0 0 30px; color: var(--muted); line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .field { display: grid; gap: 8px; margin-bottom: 18px; }
+    label, legend { font-weight: 780; color: var(--navy-2); }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cfd8e5;
+      border-radius: 13px;
+      padding: 13px 14px;
+      color: var(--ink);
+      background: white;
+    }
+    textarea { resize: vertical; min-height: 150px; line-height: 1.55; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .form-error { color: var(--danger); font-size: 13px; min-height: 18px; }
+    .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 15px; border-radius: 13px; background: #f6f8fb; margin: 14px 0; }
+    .check-row input { width: auto; margin-top: 4px; }
+    .check-row label { font-weight: 600; line-height: 1.5; }
+    .footer-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
+
+    .device-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .device-card { border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+    .device-card h3 { margin: 0 0 8px; color: var(--navy); }
+    .status { margin-top: 14px; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #f5f7fa; color: var(--muted); font-size: 14px; }
+    .status.ok { color: #0c6f4d; background: #e9f8f2; }
+    .status.warn { color: #8a4b00; background: #fff5df; }
+    .meter { height: 10px; border-radius: 20px; overflow: hidden; background: #e2e8f0; margin-top: 14px; }
+    .meter > span { display: block; width: 0; height: 100%; background: var(--cyan); transition: width .08s linear; }
+
+    fieldset { border: 0; padding: 0; margin: 0 0 28px; }
+    legend { margin-bottom: 13px; font-size: 18px; line-height: 1.45; }
+    .option-list { display: grid; gap: 10px; }
+    .option {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      transition: border-color .15s, background .15s;
+    }
+    .option:hover { border-color: #8bb7df; background: #f7fbff; }
+    .option input { width: auto; margin-top: 4px; }
+    .option:has(input:checked) { border-color: var(--blue); background: #edf6ff; }
+    .level-tag { display: inline-flex; margin-bottom: 14px; padding: 6px 9px; border-radius: 8px; color: var(--blue); background: #edf6ff; font-weight: 800; font-size: 12px; }
+    .adaptive-note { margin: 0 0 24px; padding: 16px 18px; border-radius: 14px; background: #eaf8f4; border-left: 4px solid var(--success); color: #165f49; line-height: 1.55; }
+    .gentle-start { margin-bottom: 25px; padding: 15px 17px; border-radius: 14px; background: #fff2ed; border: 1px solid #ffd4c7; color: #8a2e16; line-height: 1.55; }
+
+    .audio-box { padding: 20px; border-radius: 17px; background: linear-gradient(135deg, #eef3ff, #fff1ec); border: 1px solid #e1e8ff; margin-bottom: 24px; }
+    .audio-box .btn { margin-top: 10px; }
+    .wave { display: inline-flex; align-items: center; gap: 3px; height: 22px; margin-right: 7px; }
+    .wave i { display: block; width: 3px; border-radius: 4px; background: currentColor; animation: wave 1s ease-in-out infinite; }
+    .wave i:nth-child(1) { height: 7px; }
+    .wave i:nth-child(2) { height: 16px; animation-delay: .15s; }
+    .wave i:nth-child(3) { height: 11px; animation-delay: .3s; }
+    @keyframes wave { 50% { transform: scaleY(.5); } }
+    .counter { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
+
+    .chat { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+    .chat-head { padding: 14px 17px; background: linear-gradient(90deg, var(--navy), #3f73ff); color: white; display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .online { width: 9px; height: 9px; background: #55e6ae; border-radius: 50%; box-shadow: 0 0 0 4px rgba(85,230,174,.16); }
+    .messages { min-height: 240px; max-height: 340px; overflow: auto; padding: 18px; background: #f7f9fc; }
+    .bubble { width: fit-content; max-width: 78%; padding: 12px 14px; margin-bottom: 12px; border-radius: 15px; line-height: 1.45; }
+    .bubble.ai { background: white; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+    .bubble.student { margin-left: auto; color: white; background: var(--blue); border-bottom-right-radius: 4px; }
+    .chat-controls { padding: 14px; background: white; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    .recording { color: white !important; background: var(--danger) !important; }
+
+    .profile-scale { display: grid; gap: 18px; }
+    .scale-row { display: grid; grid-template-columns: 1fr 260px; gap: 18px; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .scale-row strong { display: block; color: var(--navy); margin-bottom: 4px; }
+    .teacher-check { margin-top: 22px; border: 1px solid var(--line); border-radius: 16px; background: #f8fafc; }
+    .teacher-check summary { padding: 16px 18px; cursor: pointer; color: var(--navy); font-weight: 800; }
+    .teacher-check .teacher-content { padding: 0 18px 18px; }
+    .profile-explanation { margin-top: 12px; color: var(--muted); line-height: 1.55; font-size: 14px; }
+
+    .result-hero { display: grid; grid-template-columns: .75fr 1.25fr; gap: 22px; align-items: stretch; }
+    .level-card { padding: 28px; border-radius: 24px; background: linear-gradient(150deg, #0936ad, var(--navy)); color: white; position: relative; overflow: hidden; }
+    .level-card::after { content: ""; position: absolute; width: 145px; height: 145px; border-radius: 50%; right: -55px; bottom: -60px; background: rgba(237,78,35,.28); }
+    .level-card .big-level { font-size: 80px; line-height: 1; font-weight: 900; letter-spacing: -.05em; margin: 22px 0 4px; color: #ffb026; }
+    .level-card h3 { margin: 0; font-size: 24px; }
+    .level-card p { color: #dce7f3; line-height: 1.55; }
+    .result-summary { padding: 26px; border: 1px solid var(--line); border-radius: 24px; background: #fff; }
+    .result-summary h3 { color: var(--navy); margin-top: 0; font-size: 25px; }
+    .recommendation { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
+    .recommendation > div { padding: 15px; border-radius: 14px; background: #f3f7fb; }
+    .recommendation span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .confidence { padding: 14px; border-left: 4px solid var(--cyan); background: #fff2ed; line-height: 1.5; }
+
+    .result-brand { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: -8px 0 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .result-logo { width: 175px; height: 55px; }
+    .result-logo img { position: absolute; width: 263px; max-width: none; left: -47px; top: -47px; }
+    .result-brand span { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; text-align: right; }
+
+    .tabs { display: flex; gap: 8px; margin: 28px 0 14px; }
+    .tab { color: var(--muted); background: transparent; border: 0; border-bottom: 3px solid transparent; padding: 10px 4px; margin-right: 16px; font-weight: 800; }
+    .tab.active { color: var(--blue); border-color: var(--blue); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .scores { display: grid; gap: 16px; }
+    .score-row { display: grid; grid-template-columns: 180px 1fr 52px; gap: 14px; align-items: center; }
+    .score-track { height: 10px; background: #e8edf3; border-radius: 99px; overflow: hidden; }
+    .score-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+    .teacher-table { width: 100%; border-collapse: collapse; }
+    .teacher-table th, .teacher-table td { text-align: left; padding: 13px 10px; border-bottom: 1px solid var(--line); }
+    .teacher-table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .notice { margin-top: 20px; padding: 15px; border-radius: 13px; background: #f1f4f8; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 820px) {
+      .hero, .result-hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-panel { min-height: 430px; }
+      .grid-2, .device-grid { grid-template-columns: 1fr; }
+      .info-strip { grid-template-columns: 1fr; }
+      .scale-row { grid-template-columns: 1fr; gap: 8px; }
+      .score-row { grid-template-columns: 120px 1fr 45px; }
+    }
+    @media (max-width: 520px) {
+      .topbar { padding: 12px 16px; }
+      .brand-copy { display: none; }
+      .brand-logo { width: 165px; height: 53px; }
+      .brand-logo img { width: 249px; left: -44px; top: -45px; }
+      .prototype-chip { padding: 7px 9px; font-size: 10px; }
+      main { width: min(100% - 20px, 1180px); padding-top: 22px; }
+      .paper { padding: 22px 17px; border-radius: 18px; }
+      .skill-orbit { grid-template-columns: 1fr; }
+      .recommendation { grid-template-columns: 1fr; }
+      .footer-actions { flex-direction: column-reverse; }
+      .footer-actions .btn { width: 100%; }
+      .chat-controls { grid-template-columns: 1fr; }
+      .score-row { grid-template-columns: 1fr 48px; }
+      .score-row > span:first-child { grid-column: 1 / -1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+    @media print {
+      .topbar, .progress-wrap, .tabs, .footer-actions { display: none !important; }
+      body { background: white; }
+      main { width: 100%; padding: 0; }
+      .screen { display: none !important; }
+      #screen-result.active { display: block !important; }
+      .paper { box-shadow: none; border: 0; padding: 18px; }
+      .level-card, .score-track span { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="All Net Educação — Teste Inteligente de Inglês">
+      <span class="brand-logo" aria-hidden="true"><img src="allnet-logo.png" alt=""></span>
+      <span class="brand-copy">Teste Inteligente de Inglês<small>Nivelamento adaptativo CEFR</small></span>
+    </div>
+    <span class="prototype-chip">Protótipo All Net</span>
+  </header>
+
+  <main>
+    <section class="screen active" id="screen-home" aria-labelledby="home-title">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">All Net Educação • Seu inglês. Sua turma ideal.</p>
+          <h1 id="home-title">Descubra seu nível de inglês de um jeito <span>completo.</span></h1>
+          <p class="lead">Uma experiência prática e acolhedora, baseada no CEFR, que avalia leitura, escuta, escrita e conversação — e ajuda cada estudante a encontrar a turma em que aprenderá melhor.</p>
+          <div class="actions">
+            <button class="btn btn-primary" type="button" data-go="profile">Começar teste <span aria-hidden="true">→</span></button>
+            <button class="btn btn-secondary" type="button" id="demo-result">Ver resultado demonstrativo</button>
+          </div>
+          <div class="info-strip" aria-label="Informações do teste">
+            <div class="info-item"><strong>25–35 minutos</strong><span>Tempo estimado</span></div>
+            <div class="info-item"><strong>Pré-A1 a C2</strong><span>Referência CEFR</span></div>
+            <div class="info-item"><strong>Resultado completo</strong><span>Aluno e professor</span></div>
+          </div>
+        </div>
+        <aside class="hero-panel" aria-label="Resumo das habilidades avaliadas">
+          <div class="panel-content">
+            <span class="mini-label">Educação que transforma</span>
+            <h2>Quatro habilidades, uma visão completa.</h2>
+            <p>As questões mudam de dificuldade conforme as respostas. O objetivo não é reprovar: é descobrir de onde o aluno deve começar.</p>
+            <div class="skill-orbit">
+              <div class="skill-card"><span aria-hidden="true">◉</span><strong>Listening</strong><small>Compreensão auditiva</small></div>
+              <div class="skill-card"><span aria-hidden="true">✦</span><strong>Speaking</strong><small>Conversa com a IA</small></div>
+              <div class="skill-card"><span aria-hidden="true">▤</span><strong>Reading</strong><small>Leitura e interpretação</small></div>
+              <div class="skill-card"><span aria-hidden="true">✎</span><strong>Writing</strong><small>Produção escrita</small></div>
+            </div>
+            <div class="level-line" aria-hidden="true">
+              <span class="level-dot"></span><span class="level-dot"></span><span class="level-dot"></span><span class="level-dot"></span><span class="level-dot"></span><span class="level-dot"></span>
+            </div>
+            <div class="level-labels"><span>Pré-A1 Início</span><span>B1 Independente</span><span>C2 Proficiente</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-profile" aria-labelledby="profile-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Identificação</span><span>1 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:12.5%"></div></div></div>
+        <div class="paper">
+          <div class="section-icon" aria-hidden="true">☺</div>
+          <h2 id="profile-title">Antes de começar, conte um pouco sobre você.</h2>
+          <p class="subtitle">Essas informações ajudam a adequar a linguagem do teste e a recomendação de turma.</p>
+          <form id="profile-form" novalidate>
+            <div class="grid-2">
+              <div class="field"><label for="student-name">Nome do aluno</label><input id="student-name" name="studentName" autocomplete="name" placeholder="Digite o nome" required></div>
+              <div class="field"><label for="birthdate">Data de nascimento</label><input id="birthdate" name="birthdate" type="date" required></div>
+            </div>
+            <div class="grid-2">
+              <div class="field"><label for="study-time">Já estudou inglês por quanto tempo?</label><select id="study-time"><option value="0">Nunca estudei</option><option value="1">Menos de 1 ano</option><option value="2">Entre 1 e 2 anos</option><option value="3">Mais de 2 anos</option></select></div>
+              <div class="field"><label for="goal">Principal objetivo</label><select id="goal"><option>Aprender para o dia a dia</option><option>Escola ou faculdade</option><option>Trabalho</option><option>Viagens</option><option>Prova ou certificação</option></select></div>
+            </div>
+            <div id="guardian-area" hidden>
+              <div class="field"><label for="guardian-name">Nome do responsável</label><input id="guardian-name" autocomplete="name" placeholder="Nome do pai, mãe ou responsável"></div>
+              <div class="check-row"><input id="guardian-consent" type="checkbox"><label for="guardian-consent">Autorizo a participação no teste e o uso temporário do microfone para avaliar a fala. Neste protótipo, nenhum áudio é enviado ou armazenado.</label></div>
+            </div>
+            <div class="check-row"><input id="student-confirm" type="checkbox" required><label for="student-confirm">Entendi que este é um teste de nivelamento e que posso pedir ajuda caso tenha dificuldade com o equipamento.</label></div>
+            <p class="form-error" id="profile-error" role="alert"></p>
+            <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="home">Voltar</button><button class="btn btn-primary" type="submit">Continuar</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-device" aria-labelledby="device-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Equipamento</span><span>2 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:25%"></div></div></div>
+        <div class="paper">
+          <div class="section-icon" aria-hidden="true">⌁</div>
+          <h2 id="device-title">Vamos testar o som e o microfone.</h2>
+          <p class="subtitle">Faça esta etapa em um local tranquilo. Use fones de ouvido se estiver em uma sala com outras pessoas.</p>
+          <div class="device-grid">
+            <article class="device-card">
+              <h3>1. Saída de áudio</h3><p class="hint">Clique e confirme se ouviu a frase em inglês.</p>
+              <button class="btn btn-secondary" id="sound-test" type="button">▶ Ouvir frase</button>
+              <div class="status" id="sound-status" aria-live="polite">Aguardando teste.</div>
+            </article>
+            <article class="device-card">
+              <h3>2. Microfone</h3><p class="hint">Autorize o navegador e diga: “My name is...”</p>
+              <button class="btn btn-secondary" id="mic-test" type="button">● Autorizar e testar microfone</button>
+              <div class="meter" aria-hidden="true"><span id="mic-meter"></span></div>
+              <div class="status" id="mic-status" aria-live="polite">Aguardando teste.</div>
+            </article>
+          </div>
+          <div class="notice"><strong>Uma autorização por sessão:</strong> depois deste teste, o protótipo reutiliza o mesmo acesso ao microfone durante toda a avaliação. Ao ser publicado em um endereço seguro, o Chrome também poderá lembrar a escolha para as próximas visitas. Se o navegador bloquear o microfone, a resposta poderá ser digitada.</div>
+          <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="profile">Voltar</button><button class="btn btn-primary" type="button" data-go="reading">Continuar</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-reading" aria-labelledby="reading-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Reading & Use of English</span><span>3 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:37.5%"></div></div></div>
+        <div class="paper">
+          <span class="level-tag" id="reading-level-tag">Aquecimento • Pré-A1/A1</span>
+          <h2 id="reading-title">Vamos começar pelo inglês mais simples.</h2>
+          <p class="subtitle">Não se preocupe se ainda não souber responder. Começamos com palavras e frases básicas e só aumentamos a dificuldade quando você estiver pronto.</p>
+          <div class="gentle-start"><strong>Esta parte não reprova ninguém.</strong> Ela serve apenas para descobrir se o próximo desafio deve continuar básico ou avançar automaticamente.</div>
+          <form id="reading-form">
+            <div id="basic-reading-round">
+            <fieldset><legend>1. Hello! My name _____ Julia.</legend><div class="option-list">
+              <label class="option"><input type="radio" name="q1" value="0"> am</label>
+              <label class="option"><input type="radio" name="q1" value="1"> is</label>
+              <label class="option"><input type="radio" name="q1" value="0"> are</label>
+            </div></fieldset>
+            <fieldset><legend>2. What is your name? — Qual resposta combina com essa pergunta?</legend><div class="option-list">
+              <label class="option"><input type="radio" name="q2" value="1"> My name is Pedro.</label>
+              <label class="option"><input type="radio" name="q2" value="0"> I am fine, thank you.</label>
+              <label class="option"><input type="radio" name="q2" value="0"> Good night.</label>
+            </div></fieldset>
+            <fieldset><legend>3. A palavra “cat” significa:</legend><div class="option-list">
+              <label class="option"><input type="radio" name="q3" value="0"> Casa</label>
+              <label class="option"><input type="radio" name="q3" value="1"> Gato</label>
+              <label class="option"><input type="radio" name="q3" value="0"> Carro</label>
+            </div></fieldset>
+            </div>
+            <div id="advanced-reading-round" hidden>
+              <div class="adaptive-note"><strong>Muito bem!</strong> Suas respostas mostram que podemos tentar um desafio um pouco maior. Se não souber alguma questão, tudo bem.</div>
+              <fieldset><legend>4. Maria usually _____ to work by bus, but today she is walking.</legend><div class="option-list">
+                <label class="option"><input type="radio" name="q4" value="0"> go</label>
+                <label class="option"><input type="radio" name="q4" value="1"> goes</label>
+                <label class="option"><input type="radio" name="q4" value="0"> is going</label>
+              </div></fieldset>
+              <fieldset><legend>5. “I haven't seen Daniel _____ last Monday.”</legend><div class="option-list">
+                <label class="option"><input type="radio" name="q5" value="0"> for</label>
+                <label class="option"><input type="radio" name="q5" value="1"> since</label>
+                <label class="option"><input type="radio" name="q5" value="0"> during</label>
+              </div></fieldset>
+              <fieldset><legend>6. If I _____ more time, I would learn another language.</legend><div class="option-list">
+                <label class="option"><input type="radio" name="q6" value="0"> have</label>
+                <label class="option"><input type="radio" name="q6" value="1"> had</label>
+                <label class="option"><input type="radio" name="q6" value="0"> will have</label>
+              </div></fieldset>
+            </div>
+            <p class="form-error" id="reading-error" role="alert"></p>
+            <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="device">Voltar</button><button class="btn btn-primary" id="reading-next" type="submit">Continuar com tranquilidade</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-listening" aria-labelledby="listening-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Listening</span><span>4 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:50%"></div></div></div>
+        <div class="paper">
+          <span class="level-tag" id="listening-level-tag">Compreensão auditiva • Básico</span>
+          <h2 id="listening-title">Ouça uma apresentação simples.</h2>
+          <p class="subtitle" id="listening-intro">Você pode ouvir até duas vezes. Não é necessário entender todas as palavras.</p>
+          <div class="audio-box">
+            <strong id="listening-topic">Áudio 1 — Introductions</strong><p class="hint" id="listening-hint">Clique para ouvir uma apresentação curta e bem simples.</p>
+            <button class="btn btn-primary" id="play-listening" type="button"><span class="wave" aria-hidden="true"><i></i><i></i><i></i></span> Reproduzir áudio</button>
+            <p class="hint" id="play-count" aria-live="polite">Reproduções: 0 de 2</p>
+          </div>
+          <form id="listening-form">
+            <fieldset><legend id="listening-question">What is Sarah's favorite color?</legend><div class="option-list">
+              <label class="option" id="listen-option-0"><input type="radio" name="listen" value="0"> Green</label>
+              <label class="option" id="listen-option-1"><input type="radio" name="listen" value="1"> Blue</label>
+              <label class="option" id="listen-option-2"><input type="radio" name="listen" value="0"> Red</label>
+            </div></fieldset>
+            <p class="form-error" id="listening-error" role="alert"></p>
+            <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="reading">Voltar</button><button class="btn btn-primary" type="submit">Próxima habilidade</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-writing" aria-labelledby="writing-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Writing</span><span>5 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:62.5%"></div></div></div>
+        <div class="paper">
+          <span class="level-tag" id="writing-level-tag">Produção escrita • Começo simples</span>
+          <h2 id="writing-title">Escreva o que você já consegue.</h2>
+          <p class="subtitle" id="writing-prompt">Write your name, your age and one thing you like. Exemplo: “My name is Leo. I am 10. I like games.”</p>
+          <form id="writing-form">
+            <div class="field"><label for="writing-answer">Escreva em inglês — frases ou palavras são aceitas</label><textarea id="writing-answer" maxlength="800" placeholder="My name is..."></textarea><div class="counter"><span id="writing-recommendation">Recomendação: 3 a 20 palavras</span><span id="word-count">0 palavras</span></div></div>
+            <p class="form-error" id="writing-error" role="alert"></p>
+            <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="listening">Voltar</button><button class="btn btn-primary" type="submit">Ir para conversação</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-speaking" aria-labelledby="speaking-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Speaking</span><span>6 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:75%"></div></div></div>
+        <div class="paper">
+          <span class="level-tag">Conversa adaptativa • Simulação</span>
+          <h2 id="speaking-title">Converse com a avaliadora virtual.</h2>
+          <p class="subtitle">Responda em inglês pelo microfone ou digite. A versão final fará perguntas mais fáceis ou mais difíceis conforme sua resposta.</p>
+          <div class="chat">
+            <div class="chat-head"><span class="online" aria-hidden="true"></span> Ava • Assistente de Inglês All Net</div>
+            <div class="messages" id="messages" aria-live="polite">
+              <div class="bubble ai" id="initial-speaking-prompt">Hi! What is your name? You can answer: “My name is...”</div>
+            </div>
+            <div class="chat-controls">
+              <label class="sr-only" for="speaking-input">Sua resposta em inglês</label>
+              <input id="speaking-input" placeholder="Type your answer here...">
+              <button class="btn btn-cyan" id="speak-button" type="button">🎙 Falar</button>
+            </div>
+          </div>
+          <div class="actions"><button class="btn btn-secondary" id="send-speaking" type="button">Enviar resposta</button><span class="hint" id="speech-hint" aria-live="polite">No Google Chrome, clique em Falar, responda com calma e clique em Parar quando terminar.</span></div>
+          <p class="form-error" id="speaking-error" role="alert"></p>
+          <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="writing">Voltar</button><button class="btn btn-primary" id="finish-speaking" type="button">Continuar</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-group" aria-labelledby="group-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Perfil de turma</span><span>7 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:87.5%"></div></div></div>
+        <div class="paper">
+          <div class="section-icon" aria-hidden="true">◇</div>
+          <h2 id="group-title">Qual ambiente ajuda você a aprender melhor?</h2>
+          <p class="subtitle">Esta etapa não mede inteligência ou “maturidade”. Ela combina idade, autonomia, reação a desafios, interesses e convivência para indicar o ambiente mais adequado. Em idades de transição, o professor sempre confirma a recomendação.</p>
+          <form id="group-form">
+            <div class="profile-scale">
+              <div class="scale-row"><div><strong>Quando recebo uma tarefa nova...</strong><span class="hint">Como você costuma começar?</span></div><select class="profile-answer"><option value="1">Preciso que alguém faça comigo</option><option value="2">Começo depois de um exemplo</option><option value="3">Consigo começar sozinho</option></select></div>
+              <div class="scale-row"><div><strong>Quando uma atividade fica difícil...</strong><span class="hint">O que você costuma fazer?</span></div><select class="profile-answer"><option value="1">Fico frustrado e preciso que alguém resolva comigo</option><option value="2">Tento novamente depois de receber uma dica</option><option value="3">Tento estratégias diferentes e explico onde travei</option></select></div>
+              <div class="scale-row"><div><strong>Em atividades mais longas...</strong><span class="hint">Como você lida com concentração?</span></div><select class="profile-answer"><option value="1">Preciso de pausas e lembretes frequentes</option><option value="2">Consigo continuar com pequenas pausas</option><option value="3">Consigo organizar meu tempo e concluir</option></select></div>
+              <div class="scale-row"><div><strong>Quais atividades combinam mais com você?</strong><span class="hint">Não existe resposta certa.</span></div><select class="profile-answer"><option value="1">Jogos, imagens e histórias</option><option value="2">Música, séries e situações da escola</option><option value="3">Trabalho, viagens e situações da vida adulta</option></select></div>
+              <div class="scale-row"><div><strong>Quando não entendo uma instrução...</strong><span class="hint">Como você reage?</span></div><select class="profile-answer"><option value="1">Espero alguém perceber</option><option value="2">Peço para repetir</option><option value="3">Explico exatamente minha dúvida</option></select></div>
+              <div class="scale-row"><div><strong>Ao usar o computador para estudar...</strong><span class="hint">Que tipo de acompanhamento você precisa?</span></div><select class="profile-answer"><option value="1">Preciso de ajuda em quase todas as etapas</option><option value="2">Consigo seguir depois que me mostram o caminho</option><option value="3">Navego, volto e corrijo sozinho quando necessário</option></select></div>
+            </div>
+            <details class="teacher-check">
+              <summary>Observação do professor ou atendente — opcional</summary>
+              <div class="teacher-content">
+                <p class="hint">Esta parte não deve ser preenchida pelo aluno. Ela aumenta a precisão nas idades de transição.</p>
+                <div class="field"><label for="teacher-autonomy">Seguiu as instruções durante o teste?</label><select class="teacher-answer" id="teacher-autonomy"><option value="0">Não observado</option><option value="1">Precisou de ajuda constante</option><option value="2">Precisou de algumas orientações</option><option value="3">Seguiu com autonomia</option></select></div>
+                <div class="field"><label for="teacher-frustration">Como reagiu às partes difíceis?</label><select class="teacher-answer" id="teacher-frustration"><option value="0">Não observado</option><option value="1">Paralisou ou quis desistir</option><option value="2">Continuou depois de apoio</option><option value="3">Tentou novamente e pediu ajuda com clareza</option></select></div>
+                <div class="field"><label for="teacher-communication">Como se comunicou com o avaliador?</label><select class="teacher-answer" id="teacher-communication"><option value="0">Não observado</option><option value="1">Precisou de mediação frequente</option><option value="2">Comunicou necessidades básicas</option><option value="3">Explicou dúvidas e decisões com clareza</option></select></div>
+              </div>
+            </details>
+            <div class="notice">Um adolescente com perfil mais lúdico não será automaticamente colocado com crianças. O sistema poderá recomendar uma turma Teens com mais apoio e atividades visuais. A mudança para uma faixa adulta ou infantil exige confirmação humana.</div>
+            <div class="footer-actions"><button class="btn btn-secondary" type="button" data-go="speaking">Voltar</button><button class="btn btn-primary" type="submit">Gerar resultado</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-result" aria-labelledby="result-title">
+      <div class="test-shell">
+        <div class="progress-wrap"><div class="progress-meta"><span>Resultado</span><span>8 de 8</span></div><div class="progress-track"><div class="progress-fill" style="width:100%"></div></div></div>
+        <div class="paper">
+          <div class="result-brand">
+            <span class="result-logo" aria-label="All Net Educação"><img src="allnet-logo.png" alt="All Net — educação que transforma"></span>
+            <span>Relatório de nivelamento CEFR</span>
+          </div>
+          <p class="eyebrow">Resultado de nivelamento</p>
+          <h2 id="result-title"><span id="result-name">Aluno</span>, encontramos um ótimo ponto de partida.</h2>
+          <div class="result-hero">
+            <div class="level-card">
+              <span class="mini-label">Nível CEFR estimado</span>
+              <div class="big-level" id="cefr-level">B1</div>
+              <h3 id="broad-level">Intermediário</h3>
+              <p id="level-description">Você consegue compreender situações cotidianas e comunicar ideias com alguma independência.</p>
+            </div>
+            <div class="result-summary">
+              <h3>Recomendação pedagógica</h3>
+              <p>O resultado combina as quatro habilidades. A turma final deve considerar também o conteúdo já estudado e uma rápida validação do professor.</p>
+              <div class="recommendation">
+                <div><span>Ponto de entrada All Net</span><strong id="class-recommendation">Intermediate 1</strong></div>
+                <div><span>Perfil de turma</span><strong id="group-recommendation">Teens</strong></div>
+              </div>
+              <p class="profile-explanation" id="group-explanation">A recomendação considera idade e perfil de autonomia.</p>
+              <div class="notice"><strong>Como ler o resultado:</strong> o CEFR mostra a proficiência atual. O ponto de entrada indica onde o aluno começa na sequência dos livros da All Net e, por isso, não precisa ter o mesmo número do nível técnico.</div>
+              <div class="confidence"><strong>Confiança da avaliação: <span id="confidence-value">82%</span></strong><br><span id="review-note">Revisão humana recomendada antes da matrícula definitiva.</span></div>
+            </div>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Detalhes do resultado">
+            <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="student-panel">Visão do aluno</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="teacher-panel">Relatório do professor</button>
+          </div>
+          <div class="tab-panel active" id="student-panel" role="tabpanel">
+            <div class="scores" id="student-scores"></div>
+            <div class="notice"><strong>Próximo passo:</strong> realizar uma conversa curta com o professor para confirmar a turma e definir os primeiros objetivos de aprendizagem.</div>
+          </div>
+          <div class="tab-panel" id="teacher-panel" role="tabpanel">
+            <table class="teacher-table">
+              <thead><tr><th>Competência</th><th>Desempenho estimado</th><th>Observação</th></tr></thead>
+              <tbody id="teacher-rows"></tbody>
+            </table>
+            <div class="notice"><strong>Nota do protótipo All Net:</strong> a pontuação atual é uma simulação baseada em poucas respostas e no tamanho dos textos. A versão funcional usará rubricas CEFR, transcrição, análise de áudio e banco completo de questões.</div>
+          </div>
+          <div class="footer-actions"><button class="btn btn-secondary" type="button" id="restart-test">Recomeçar</button><button class="btn btn-primary" type="button" onclick="window.print()">Imprimir resultado</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      name: 'Aluno', age: null, readingBasic: 0, readingAdvanced: 0,
+      track: 'foundation', listening: 0, writing: '',
+      speaking: [], groupScore: 6, teacherScore: 0, teacherCount: 0,
+      playCount: 0, demo: false
+    };
+
+    const screenNames = ['home','profile','device','reading','listening','writing','speaking','group','result'];
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    function go(name) {
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      $$('.screen').forEach(screen => screen.classList.remove('active'));
+      const target = $('#screen-' + name);
+      if (!target) return;
+      target.classList.add('active');
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      const heading = target.querySelector('h1,h2');
+      if (heading) { heading.setAttribute('tabindex','-1'); setTimeout(() => heading.focus(), 250); }
+    }
+
+    $$('[data-go]').forEach(button => button.addEventListener('click', () => go(button.dataset.go)));
+
+    function calculateAge(dateString) {
+      if (!dateString) return null;
+      const birth = new Date(dateString + 'T12:00:00');
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const month = today.getMonth() - birth.getMonth();
+      if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) age--;
+      return age;
+    }
+
+    $('#birthdate').addEventListener('change', (event) => {
+      const age = calculateAge(event.target.value);
+      $('#guardian-area').hidden = !(age !== null && age < 18);
+    });
+
+    $('#profile-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = $('#student-name').value.trim();
+      const age = calculateAge($('#birthdate').value);
+      const minor = age !== null && age < 18;
+      const guardianOk = !minor || ($('#guardian-name').value.trim() && $('#guardian-consent').checked);
+      if (!name || age === null || age < 5 || age > 100 || !$('#student-confirm').checked || !guardianOk) {
+        $('#profile-error').textContent = minor && !guardianOk ? 'Para menores, preencha o nome do responsável e confirme a autorização.' : 'Preencha os campos obrigatórios e confirme que entendeu o teste.';
+        return;
+      }
+      state.name = name.split(' ')[0]; state.age = age;
+      $('#profile-error').textContent = '';
+      go('device');
+    });
+
+    let availableVoices = [];
+    function loadVoices() {
+      availableVoices = speechSynthesis.getVoices();
+    }
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    }
+
+    function chooseNaturalVoice(lang) {
+      const englishVoices = availableVoices.filter(voice => voice.lang.toLowerCase().startsWith('en'));
+      return englishVoices.find(voice => /natural|google us english|microsoft (aria|jenny|guy)|samantha/i.test(voice.name))
+        || englishVoices.find(voice => voice.lang.toLowerCase() === lang.toLowerCase())
+        || englishVoices[0]
+        || null;
+    }
+
+    function speakText(text, lang = 'en-US', customRate = null) {
+      if (!('speechSynthesis' in window)) return false;
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = customRate ?? (state.track === 'foundation' ? .68 : .80);
+      utterance.pitch = 1;
+      const selectedVoice = chooseNaturalVoice(lang);
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+      return true;
+    }
+
+    $('#sound-test').addEventListener('click', () => {
+      const ok = speakText('Welcome to your English placement test. Can you hear me clearly?', 'en-US', .72);
+      const status = $('#sound-status');
+      status.className = 'status ' + (ok ? 'ok' : 'warn');
+      status.textContent = ok ? '✓ Áudio reproduzido. Se ouviu a frase, o som está pronto.' : 'Não foi possível reproduzir. Verifique o volume do navegador.';
+    });
+
+    let sharedMicStream = null;
+    async function ensureMicrophonePermission() {
+      const activeTrack = sharedMicStream?.getAudioTracks().find(track => track.readyState === 'live');
+      if (activeTrack) return sharedMicStream;
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Microfone indisponível neste endereço.');
+      sharedMicStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      return sharedMicStream;
+    }
+
+    function stopSharedMicrophone() {
+      if (!sharedMicStream) return;
+      sharedMicStream.getTracks().forEach(track => track.stop());
+      sharedMicStream = null;
+    }
+    window.addEventListener('beforeunload', stopSharedMicrophone);
+
+    $('#mic-test').addEventListener('click', async () => {
+      const status = $('#mic-status');
+      try {
+        const stream = await ensureMicrophonePermission();
+        status.className = 'status ok'; status.textContent = '✓ Microfone autorizado para esta sessão. Fale por alguns segundos.';
+        $('#mic-test').textContent = '✓ Microfone autorizado';
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = context.createAnalyser(); const source = context.createMediaStreamSource(stream);
+        analyser.fftSize = 256; source.connect(analyser); const data = new Uint8Array(analyser.frequencyBinCount);
+        const start = Date.now();
+        function draw() {
+          analyser.getByteFrequencyData(data);
+          const avg = data.reduce((a,b)=>a+b,0) / data.length;
+          $('#mic-meter').style.width = Math.min(100, avg * 2.4) + '%';
+          if (Date.now() - start < 5000) requestAnimationFrame(draw); else {
+            source.disconnect(); context.close(); $('#mic-meter').style.width = '0';
+            status.textContent = '✓ Som detectado. O mesmo acesso será reutilizado na conversação.';
+          }
+        }
+        draw();
+      } catch (error) {
+        status.className = 'status warn';
+        status.textContent = 'O microfone não foi autorizado. Você poderá digitar a resposta oral.';
+      }
+    });
+
+    $('#reading-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const basicAnswered = ['q1','q2','q3'].every(name => $(`input[name="${name}"]:checked`));
+      if (!basicAnswered) { $('#reading-error').textContent = 'Escolha uma opção em cada pergunta. Não se preocupe se precisar tentar.'; return; }
+      state.readingBasic = ['q1','q2','q3'].reduce((sum,name) => sum + Number($(`input[name="${name}"]:checked`).value), 0);
+
+      if ($('#advanced-reading-round').hidden && state.readingBasic === 3) {
+        state.track = 'extended';
+        $('#advanced-reading-round').hidden = false;
+        $('#basic-reading-round').hidden = true;
+        $('#reading-level-tag').textContent = 'Próximo desafio • A2–B1';
+        $('#reading-title').textContent = 'Você está pronto para avançar um pouco.';
+        $('#reading-next').textContent = 'Continuar para Listening';
+        $('#reading-error').textContent = '';
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        return;
+      }
+
+      if (!$('#advanced-reading-round').hidden) {
+        const advancedAnswered = ['q4','q5','q6'].every(name => $(`input[name="${name}"]:checked`));
+        if (!advancedAnswered) { $('#reading-error').textContent = 'Escolha uma opção em cada novo desafio. Não há problema se você não souber.'; return; }
+        state.readingAdvanced = ['q4','q5','q6'].reduce((sum,name) => sum + Number($(`input[name="${name}"]:checked`).value), 0);
+      } else {
+        state.track = 'foundation';
+        state.readingAdvanced = 0;
+      }
+      $('#reading-error').textContent = '';
+      configureAdaptiveTrack();
+      go('listening');
+    });
+
+    function setOptionText(id, text) {
+      const label = $(id);
+      const input = label.querySelector('input');
+      label.replaceChildren(input, document.createTextNode(' ' + text));
+    }
+
+    function configureAdaptiveTrack() {
+      state.playCount = 0;
+      $('#play-listening').disabled = false;
+      $('#play-count').textContent = 'Reproduções: 0 de 2';
+      if (state.track === 'extended') {
+        $('#listening-level-tag').textContent = 'Compreensão auditiva • A2–B1';
+        $('#listening-title').textContent = 'Ouça e identifique a ideia principal.';
+        $('#listening-intro').textContent = 'Você pode ouvir até duas vezes. Depois, selecione a melhor resposta.';
+        $('#listening-topic').textContent = 'Áudio 1 — Daily plans';
+        $('#listening-hint').textContent = 'Clique para ouvir uma conversa cotidiana.';
+        $('#listening-question').textContent = "Why can't the woman meet her friend in the morning?";
+        setOptionText('#listen-option-0', 'She is going to the supermarket.');
+        setOptionText('#listen-option-1', 'She has to finish a work report.');
+        setOptionText('#listen-option-2', 'She is travelling to another city.');
+        $('#writing-level-tag').textContent = 'Produção escrita • B1';
+        $('#writing-title').textContent = 'Escreva uma mensagem curta.';
+        $('#writing-prompt').textContent = 'Your English-speaking friend wants to visit your city. Write a message explaining one place you can visit together and why you recommend it.';
+        $('#writing-answer').placeholder = "Hi! I'm happy that you are coming...";
+        $('#writing-recommendation').textContent = 'Recomendação: 50 a 100 palavras';
+        $('#initial-speaking-prompt').textContent = "Hi! Tell me about an activity you enjoy doing in your free time.";
+      } else {
+        $('#listening-level-tag').textContent = 'Compreensão auditiva • Pré-A1/A1';
+        $('#listening-title').textContent = 'Ouça uma apresentação simples.';
+        $('#listening-intro').textContent = 'Você pode ouvir até duas vezes. Não é necessário entender todas as palavras.';
+        $('#listening-topic').textContent = 'Áudio 1 — Introductions';
+        $('#listening-hint').textContent = 'Clique para ouvir uma apresentação curta e bem simples.';
+        $('#listening-question').textContent = "What is Sarah's favorite color?";
+        setOptionText('#listen-option-0', 'Green');
+        setOptionText('#listen-option-1', 'Blue');
+        setOptionText('#listen-option-2', 'Red');
+        $('#writing-level-tag').textContent = 'Produção escrita • Começo simples';
+        $('#writing-title').textContent = 'Escreva o que você já consegue.';
+        $('#writing-prompt').textContent = 'Write your name, your age and one thing you like. Exemplo: “My name is Leo. I am 10. I like games.”';
+        $('#writing-answer').placeholder = 'My name is...';
+        $('#writing-recommendation').textContent = 'Recomendação: 3 a 20 palavras';
+        $('#initial-speaking-prompt').textContent = 'Hi! What is your name? You can answer: “My name is...”';
+      }
+    }
+
+    $('#play-listening').addEventListener('click', () => {
+      if (state.playCount >= 2) return;
+      state.playCount++;
+      const audioText = state.track === 'extended'
+        ? "I'd love to meet you tomorrow. I have to finish a report in the morning, but I should be free after lunch. How about meeting at the new café at three o'clock?"
+        : 'Hello! My name is Sarah. I am twelve years old. My favorite color is blue. I have a small dog.';
+      speakText(audioText);
+      $('#play-count').textContent = `Reproduções: ${state.playCount} de 2`;
+      if (state.playCount >= 2) $('#play-listening').disabled = true;
+    });
+
+    $('#listening-form').addEventListener('submit', (event) => {
+      event.preventDefault(); const answer = $('input[name="listen"]:checked');
+      if (!answer) { $('#listening-error').textContent = 'Selecione uma resposta para continuar.'; return; }
+      state.listening = Number(answer.value); $('#listening-error').textContent = ''; go('writing');
+    });
+
+    $('#writing-answer').addEventListener('input', (event) => {
+      const words = event.target.value.trim() ? event.target.value.trim().split(/\s+/).length : 0;
+      $('#word-count').textContent = `${words} ${words === 1 ? 'palavra' : 'palavras'}`;
+    });
+    $('#writing-form').addEventListener('submit', (event) => {
+      event.preventDefault(); const text = $('#writing-answer').value.trim(); const words = text ? text.split(/\s+/).length : 0;
+      const minimumWords = state.track === 'extended' ? 12 : 3;
+      if (words < minimumWords) { $('#writing-error').textContent = state.track === 'extended' ? 'Escreva pelo menos 12 palavras para que possamos analisar uma amostra.' : 'Tente escrever pelo menos três palavras. Você pode usar o exemplo acima como ajuda.'; return; }
+      state.writing = text; $('#writing-error').textContent = ''; go('speaking');
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isRecognizing = false;
+    let keepListening = false;
+    let ignoreRecognitionResults = false;
+    let recognitionBaseText = '';
+    let finalRecognitionText = '';
+    let recognitionDeadline = 0;
+    let recognitionRestartTimer = null;
+
+    function setRecognitionIdle(message) {
+      isRecognizing = false;
+      $('#speak-button').classList.remove('recording');
+      $('#speak-button').textContent = '🎙 Falar novamente';
+      if (message) $('#speech-hint').textContent = message;
+    }
+
+    function stopRecognition({ discardLateResults = false } = {}) {
+      keepListening = false;
+      ignoreRecognitionResults = discardLateResults;
+      clearTimeout(recognitionRestartTimer);
+      if (recognition && isRecognizing) {
+        try { discardLateResults ? recognition.abort() : recognition.stop(); } catch (_) {}
+      }
+      setRecognitionIdle(discardLateResults ? '' : 'Gravação encerrada. Confira o texto antes de enviar.');
+    }
+
+    function startRecognitionCycle() {
+      if (!recognition || !keepListening || Date.now() >= recognitionDeadline) {
+        stopRecognition();
+        return;
+      }
+      try {
+        recognition.start();
+      } catch (_) {
+        recognitionRestartTimer = setTimeout(startRecognitionCycle, 350);
+      }
+    }
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.maxAlternatives = 3;
+      recognition.onstart = () => {
+        isRecognizing = true;
+        $('#speak-button').classList.add('recording');
+        $('#speak-button').textContent = '■ Parar';
+        $('#speech-hint').textContent = 'Estou ouvindo. Pode fazer pausas curtas; clique em Parar quando terminar.';
+      };
+      recognition.onresult = event => {
+        if (ignoreRecognitionResults || !keepListening) return;
+        let interimText = '';
+        for (let index = event.resultIndex; index < event.results.length; index++) {
+          const transcript = event.results[index][0].transcript.trim();
+          if (event.results[index].isFinal) finalRecognitionText = [finalRecognitionText, transcript].filter(Boolean).join(' ');
+          else interimText = [interimText, transcript].filter(Boolean).join(' ');
+        }
+        $('#speaking-input').value = [recognitionBaseText, finalRecognitionText, interimText].filter(Boolean).join(' ').trim();
+      };
+      recognition.onend = () => {
+        isRecognizing = false;
+        if (keepListening && Date.now() < recognitionDeadline) {
+          $('#speech-hint').textContent = 'Pausa detectada — continuando a escutar...';
+          recognitionRestartTimer = setTimeout(startRecognitionCycle, 250);
+          return;
+        }
+        const message = $('#speaking-input').value.trim()
+          ? 'Confira o texto reconhecido. Se necessário, faça uma nova gravação.'
+          : 'Não consegui ouvir com clareza. Aproxime-se do microfone e tente novamente.';
+        stopRecognition();
+        $('#speech-hint').textContent = message;
+      };
+      recognition.onerror = event => {
+        const messages = {
+          'no-speech': 'Ainda não ouvi sua voz. Continuarei escutando por alguns segundos...',
+          'audio-capture': 'O navegador não conseguiu acessar o microfone. Você pode digitar a resposta.',
+          'not-allowed': 'O acesso ao microfone foi bloqueado. Você pode digitar a resposta.',
+          'network': 'O serviço de reconhecimento de voz ficou indisponível. Tente novamente ou digite.'
+        };
+        if (['audio-capture','not-allowed','network'].includes(event.error)) keepListening = false;
+        $('#speech-hint').textContent = messages[event.error] || 'Não foi possível reconhecer a fala. Você pode tentar novamente ou digitar.';
+      };
+    }
+    $('#speak-button').addEventListener('click', async () => {
+      if (!recognition) { $('#speech-hint').textContent = 'Reconhecimento de voz indisponível. Digite a resposta no campo.'; return; }
+      if (isRecognizing || keepListening) { stopRecognition(); return; }
+      try {
+        clearTimeout(replyAudioTimer);
+        if ('speechSynthesis' in window) speechSynthesis.cancel();
+        await ensureMicrophonePermission();
+        clearTimeout(recognitionRestartTimer);
+        keepListening = true;
+        ignoreRecognitionResults = false;
+        recognitionBaseText = '';
+        finalRecognitionText = '';
+        recognitionDeadline = Date.now() + 30000;
+        $('#speaking-input').value = '';
+        startRecognitionCycle();
+      } catch (_) {
+        keepListening = false;
+        $('#speech-hint').textContent = 'Não foi possível acessar o microfone. Você pode digitar a resposta.';
+      }
+    });
+
+    let speakingStep = 0;
+    let replyAudioTimer = null;
+    const extendedFollowUps = [
+      'That sounds interesting! How often do you do this activity, and who do you usually do it with?',
+      'Great. Imagine you had a completely free weekend. What would you choose to do, and why?',
+      'Thank you! I have enough information for this prototype.'
+    ];
+    const foundationFollowUps = [
+      'Nice to meet you! How old are you? You can answer: “I am ... years old.”',
+      'Great! What do you like? You can answer: “I like music, games or animals.”',
+      'Thank you! You did very well. The test will choose a comfortable starting level for you.'
+    ];
+    function sendSpeaking() {
+      const input = $('#speaking-input'); const text = input.value.trim();
+      if (!text) { $('#speaking-error').textContent = 'Fale ou digite uma resposta antes de enviar.'; return; }
+      stopRecognition({ discardLateResults: true });
+      $('#speaking-error').textContent = ''; state.speaking.push(text);
+      $('#messages').insertAdjacentHTML('beforeend', `<div class="bubble student"></div>`);
+      $('#messages').lastElementChild.textContent = text;
+      input.value = '';
+      recognitionBaseText = '';
+      finalRecognitionText = '';
+      const followUps = state.track === 'extended' ? extendedFollowUps : foundationFollowUps;
+      const reply = followUps[Math.min(speakingStep, followUps.length - 1)]; speakingStep++;
+      $('#messages').insertAdjacentHTML('beforeend', `<div class="bubble ai"></div>`);
+      $('#messages').lastElementChild.textContent = reply;
+      $('#messages').scrollTop = $('#messages').scrollHeight;
+      clearTimeout(replyAudioTimer);
+      replyAudioTimer = setTimeout(() => speakText(reply), 350);
+    }
+    $('#send-speaking').addEventListener('click', sendSpeaking);
+    $('#speaking-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendSpeaking(); } });
+    $('#finish-speaking').addEventListener('click', () => {
+      if (!state.speaking.length) { $('#speaking-error').textContent = 'Envie pelo menos uma resposta para continuar.'; return; }
+      stopRecognition({ discardLateResults: true });
+      go('group');
+    });
+
+    $('#group-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      state.groupScore = $$('.profile-answer').reduce((sum, item) => sum + Number(item.value), 0);
+      const teacherValues = $$('.teacher-answer').map(item => Number(item.value)).filter(value => value > 0);
+      state.teacherScore = teacherValues.reduce((sum, value) => sum + value, 0);
+      state.teacherCount = teacherValues.length;
+      stopSharedMicrophone();
+      renderResult();
+      go('result');
+    });
+
+    function writingScore(text) {
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const connectors = (text.match(/\b(because|but|so|although|however|also|first|then|which|that)\b/gi) || []).length;
+      if (state.track === 'foundation') return Math.min(48, 12 + words * 3 + connectors * 3);
+      return Math.min(95, 28 + words * .65 + connectors * 4);
+    }
+    function speakingScore(responses) {
+      const text = responses.join(' '); const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const complexity = (text.match(/\b(because|usually|would|could|when|if|although|however|prefer)\b/gi) || []).length;
+      if (state.track === 'foundation') return Math.min(50, 12 + words * 2.5 + complexity * 3);
+      return Math.min(96, 26 + words * .9 + complexity * 5);
+    }
+
+    function levelFromScore(score) {
+      if (score < 20) return ['Pré-A1','Iniciante','Você está dando os primeiros passos e começará com palavras, cumprimentos e frases muito simples.'];
+      if (score < 34) return ['A1','Básico','Você compreende e produz frases simples sobre temas familiares.'];
+      if (score < 48) return ['A2','Básico','Você se comunica em situações simples e rotineiras.'];
+      if (score < 64) return ['B1','Intermediário','Você compreende situações cotidianas e comunica ideias com alguma independência.'];
+      if (score < 79) return ['B2','Intermediário','Você interage com boa espontaneidade e desenvolve opiniões com clareza.'];
+      if (score < 91) return ['C1','Avançado','Você usa o inglês com flexibilidade em situações acadêmicas, profissionais e sociais.'];
+      return ['C2','Avançado','Você compreende e se expressa com alto grau de precisão e naturalidade.'];
+    }
+
+    function schoolEntryFromLevel(cefr, group) {
+      if (group.startsWith('Adulto')) {
+        if (['Pré-A1','A1','A2'].includes(cefr)) return 'Basic 1';
+        if (['B1','B2'].includes(cefr)) return 'Intermediate 1';
+        return 'Advanced 1';
+      }
+      if (group.startsWith('Teens')) return 'A definir — matriz Teens pendente';
+      return 'A definir — prontidão infantil';
+    }
+
+    function groupRecommendation() {
+      const age = state.age ?? 14;
+      const studentAverage = state.groupScore / $$('.profile-answer').length;
+      const teacherAverage = state.teacherCount ? state.teacherScore / state.teacherCount : null;
+      const combined = teacherAverage === null ? studentAverage : studentAverage * .65 + teacherAverage * .35;
+
+      if (age <= 9) return ['Infantil', false, 'A idade é o principal critério. O perfil define apenas o grau de apoio e o tipo de atividade.'];
+      if (age <= 11) {
+        if (combined >= 2.45) return ['Teens — avaliar transição', true, 'A autonomia indica possível adaptação à turma Teens, mas professor e responsável devem confirmar.'];
+        return ['Infantil', true, 'O perfil indica melhor adaptação a instruções guiadas, atividades visuais e ritmo infantil.'];
+      }
+      if (age <= 14) {
+        if (combined < 1.65) return ['Teens com abordagem mais lúdica', true, 'A idade recomenda Teens, com mais exemplos, apoio e atividades visuais — sem colocar automaticamente o adolescente em uma turma infantil.'];
+        return ['Teens', false, 'Idade, interesses e autonomia estão compatíveis com a proposta da turma Teens.'];
+      }
+      if (age <= 16) {
+        if (combined >= 2.5) return ['Adulto — avaliar transição', true, 'O perfil sugere autonomia para temas e dinâmica adulta, sujeito à conversa final com o professor.'];
+        return ['Teens', true, 'O ritmo e os interesses ainda parecem mais compatíveis com a turma Teens.'];
+      }
+      return ['Adulto', false, 'A faixa etária e o perfil de autonomia indicam compatibilidade com a turma adulta.'];
+    }
+
+    function renderResult() {
+      const reading = state.demo ? 74 : (state.track === 'extended' ? Math.round(45 + state.readingAdvanced * 14) : Math.round(8 + state.readingBasic * 12));
+      const listening = state.demo ? 78 : (state.track === 'extended' ? (state.listening ? 76 : 45) : (state.listening ? 42 : 18));
+      const writing = state.demo ? 64 : Math.round(writingScore(state.writing));
+      const speaking = state.demo ? 58 : Math.round(speakingScore(state.speaking));
+      const grammar = Math.round((reading * .75) + (writing * .25));
+      const rawOverall = Math.round(reading * .18 + listening * .20 + writing * .20 + speaking * .30 + grammar * .12);
+      const overall = !state.demo && state.track === 'foundation' ? Math.min(33, rawOverall) : rawOverall;
+      const [cefr, broad, description] = levelFromScore(overall);
+      const [group, review, groupExplanation] = groupRecommendation();
+      const className = schoolEntryFromLevel(cefr, group);
+      const confidence = state.demo ? 82 : Math.max(61, Math.min(89, 65 + state.speaking.length * 5 + (state.writing.split(/\s+/).length > 35 ? 7 : 0)));
+
+      $('#result-name').textContent = state.name;
+      $('#cefr-level').textContent = cefr; $('#broad-level').textContent = broad; $('#level-description').textContent = description;
+      $('#class-recommendation').textContent = className; $('#group-recommendation').textContent = group; $('#confidence-value').textContent = confidence + '%';
+      $('#group-explanation').textContent = groupExplanation;
+      $('#review-note').textContent = review ? 'Revisão humana necessária por se tratar de uma faixa de transição.' : 'Validação breve do professor recomendada antes da matrícula.';
+
+      const skills = [
+        ['Reading', reading, reading >= 65 ? 'Boa compreensão de textos e instruções.' : 'Desenvolver leitura de textos mais extensos.'],
+        ['Listening', listening, listening >= 65 ? 'Identifica ideia principal e detalhes.' : 'Praticar diferentes velocidades e vozes.'],
+        ['Writing', writing, writing >= 65 ? 'Organiza ideias com clareza.' : 'Ampliar conectores e precisão gramatical.'],
+        ['Speaking', speaking, speaking >= 65 ? 'Mantém respostas espontâneas.' : 'Priorizar fluência e expansão das respostas.'],
+        ['Grammar & Vocabulary', grammar, grammar >= 65 ? 'Repertório adequado ao nível.' : 'Consolidar estruturas essenciais.']
+      ];
+      $('#student-scores').innerHTML = skills.map(([name, score]) => `<div class="score-row"><span>${name}</span><div class="score-track" aria-label="${name}: ${score}%"><span style="width:${score}%"></span></div><strong>${score}%</strong></div>`).join('');
+      const studentProfileAverage = (state.groupScore / $$('.profile-answer').length).toFixed(1);
+      const teacherProfileNote = state.teacherCount ? `Observação profissional registrada em ${state.teacherCount} indicadores.` : 'Sem observação profissional; confirmar em conversa breve.';
+      $('#teacher-rows').innerHTML = skills.map(([name, score, note]) => `<tr><td><strong>${name}</strong></td><td>${score}% • ${levelFromScore(score)[0]}</td><td>${note}</td></tr>`).join('')
+        + `<tr><td><strong>Perfil de turma</strong></td><td>${group}</td><td>Autonomia declarada: ${studentProfileAverage} de 3. ${teacherProfileNote}</td></tr>`;
+    }
+
+    $('#demo-result').addEventListener('click', () => {
+      state.demo = true; state.track = 'extended'; state.name = 'Ana'; state.age = 25; state.groupScore = 13; state.teacherScore = 0; state.teacherCount = 0; state.speaking = ['I enjoy studying English because I want to speak with more confidence.']; state.writing = 'I recommend visiting the city park because it is beautiful and calm. We can walk, take pictures and have lunch there.'; renderResult(); go('result');
+    });
+
+    $$('.tab').forEach(tab => tab.addEventListener('click', () => {
+      $$('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      $$('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      tab.classList.add('active'); tab.setAttribute('aria-selected','true'); $('#' + tab.dataset.tab).classList.add('active');
+    }));
+
+    $('#restart-test').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>
