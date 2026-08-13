@@ -498,6 +498,7 @@
             <div class="messages" id="messages" aria-live="polite">
               <div class="bubble ai" id="initial-speaking-prompt">Hi! What is your name? You can answer: “My name is...”</div>
             </div>
+            <div class="actions"><button class="btn btn-secondary" id="play-speaking-question" type="button">🔊 Ouvir pergunta</button><span class="hint" id="speaking-audio-status" aria-live="polite">Voz neural padronizada All Net</span></div>
             <div class="chat-controls">
               <label class="sr-only" for="speaking-input">Sua resposta em inglês</label>
               <input id="speaking-input" placeholder="Type your answer here...">
@@ -607,7 +608,7 @@
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
     function go(name) {
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      stopAudio();
       $$('.screen').forEach(screen => screen.classList.remove('active'));
       const target = $('#screen-' + name);
       if (!target) return;
@@ -649,41 +650,89 @@
       go('device');
     });
 
-    let availableVoices = [];
-    function loadVoices() {
-      availableVoices = speechSynthesis.getVoices();
-    }
-    if ('speechSynthesis' in window) {
-      loadVoices();
-      speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    const AUDIO_BANK = {
+      device: 'audio/device-sound-test.wav',
+      listeningFoundation: 'audio/listening-foundation.wav',
+      listeningExtended: 'audio/listening-extended.wav',
+      speakingFoundation: [
+        'audio/speaking-foundation-01.wav',
+        'audio/speaking-foundation-02.wav',
+        'audio/speaking-foundation-03.wav',
+        'audio/speaking-foundation-04.wav'
+      ],
+      speakingExtended: [
+        'audio/speaking-extended-01.wav',
+        'audio/speaking-extended-02.wav',
+        'audio/speaking-extended-03.wav',
+        'audio/speaking-extended-04.wav'
+      ]
+    };
+    const audioPlayer = new Audio();
+    audioPlayer.preload = 'auto';
+    let activeAudioButton = null;
+    let activeAudioLabel = '';
+
+    function stopAudio() {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      if (activeAudioButton) {
+        activeAudioButton.classList.remove('is-playing');
+        activeAudioButton.removeAttribute('aria-pressed');
+        if (activeAudioLabel) activeAudioButton.textContent = activeAudioLabel;
+      }
+      activeAudioButton = null;
+      activeAudioLabel = '';
     }
 
-    function chooseNaturalVoice(lang) {
-      const englishVoices = availableVoices.filter(voice => voice.lang.toLowerCase().startsWith('en'));
-      return englishVoices.find(voice => /natural|google us english|microsoft (aria|jenny|guy)|samantha/i.test(voice.name))
-        || englishVoices.find(voice => voice.lang.toLowerCase() === lang.toLowerCase())
-        || englishVoices[0]
-        || null;
+    async function playAudio(source, button = null, status = null) {
+      stopAudio();
+      if (!source) return false;
+      activeAudioButton = button;
+      activeAudioLabel = button?.textContent || '';
+      if (button) {
+        button.classList.add('is-playing');
+        button.setAttribute('aria-pressed', 'true');
+        button.textContent = '■ Parar áudio';
+      }
+      audioPlayer.src = source;
+      audioPlayer.load();
+      if (status) status.textContent = 'Carregando áudio padronizado...';
+      try {
+        await audioPlayer.play();
+        if (status) status.textContent = 'Reproduzindo voz neural padronizada.';
+        return true;
+      } catch (_) {
+        stopAudio();
+        if (status) status.textContent = 'Não foi possível abrir o arquivo de áudio. Confirme se a pasta “audio” está junto do teste.';
+        return false;
+      }
     }
 
-    function speakText(text, lang = 'en-US', customRate = null) {
-      if (!('speechSynthesis' in window)) return false;
-      speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = customRate ?? (state.track === 'foundation' ? .68 : .80);
-      utterance.pitch = 1;
-      const selectedVoice = chooseNaturalVoice(lang);
-      if (selectedVoice) utterance.voice = selectedVoice;
-      speechSynthesis.speak(utterance);
-      return true;
-    }
+    audioPlayer.addEventListener('ended', () => {
+      const button = activeAudioButton;
+      const label = activeAudioLabel;
+      activeAudioButton = null;
+      activeAudioLabel = '';
+      if (button) {
+        button.classList.remove('is-playing');
+        button.removeAttribute('aria-pressed');
+        button.textContent = label;
+      }
+      const speakingStatus = $('#speaking-audio-status');
+      if (speakingStatus) speakingStatus.textContent = 'Áudio concluído. Agora você pode responder.';
+    });
 
-    $('#sound-test').addEventListener('click', () => {
-      const ok = speakText('Welcome to your English placement test. Can you hear me clearly?', 'en-US', .72);
+    audioPlayer.addEventListener('error', () => {
+      const speakingStatus = $('#speaking-audio-status');
+      if (speakingStatus) speakingStatus.textContent = 'O arquivo de áudio não pôde ser carregado.';
+      stopAudio();
+    });
+
+    $('#sound-test').addEventListener('click', async () => {
       const status = $('#sound-status');
+      const ok = await playAudio(AUDIO_BANK.device, $('#sound-test'), status);
       status.className = 'status ' + (ok ? 'ok' : 'warn');
-      status.textContent = ok ? '✓ Áudio reproduzido. Se ouviu a frase, o som está pronto.' : 'Não foi possível reproduzir. Verifique o volume do navegador.';
+      if (ok) status.textContent = '✓ Reproduzindo o mesmo áudio que será usado em todos os computadores.';
     });
 
     let sharedMicStream = null;
@@ -809,10 +858,8 @@
     $('#play-listening').addEventListener('click', () => {
       if (state.playCount >= 2) return;
       state.playCount++;
-      const audioText = state.track === 'extended'
-        ? "I'd love to meet you tomorrow. I have to finish a report in the morning, but I should be free after lunch. How about meeting at the new café at three o'clock?"
-        : 'Hello! My name is Sarah. I am twelve years old. My favorite color is blue. I have a small dog.';
-      speakText(audioText);
+      const source = state.track === 'extended' ? AUDIO_BANK.listeningExtended : AUDIO_BANK.listeningFoundation;
+      playAudio(source, $('#play-listening'), $('#listening-hint'));
       $('#play-count').textContent = `Reproduções: ${state.playCount} de 2`;
       if (state.playCount >= 2) $('#play-listening').disabled = true;
     });
@@ -831,7 +878,11 @@
       event.preventDefault(); const text = $('#writing-answer').value.trim(); const words = text ? text.split(/\s+/).length : 0;
       const minimumWords = state.track === 'extended' ? 12 : 3;
       if (words < minimumWords) { $('#writing-error').textContent = state.track === 'extended' ? 'Escreva pelo menos 12 palavras para que possamos analisar uma amostra.' : 'Tente escrever pelo menos três palavras. Você pode usar o exemplo acima como ajuda.'; return; }
-      state.writing = text; $('#writing-error').textContent = ''; go('speaking');
+      state.writing = text;
+      $('#writing-error').textContent = '';
+      go('speaking');
+      currentSpeakingAudio = state.track === 'extended' ? AUDIO_BANK.speakingExtended[0] : AUDIO_BANK.speakingFoundation[0];
+      playAudio(currentSpeakingAudio, $('#play-speaking-question'), $('#speaking-audio-status'));
     });
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -923,8 +974,7 @@
       if (!recognition) { $('#speech-hint').textContent = 'Reconhecimento de voz indisponível. Digite a resposta no campo.'; return; }
       if (isRecognizing || keepListening) { stopRecognition(); return; }
       try {
-        clearTimeout(replyAudioTimer);
-        if ('speechSynthesis' in window) speechSynthesis.cancel();
+        stopAudio();
         await ensureMicrophonePermission();
         clearTimeout(recognitionRestartTimer);
         keepListening = true;
@@ -941,7 +991,7 @@
     });
 
     let speakingStep = 0;
-    let replyAudioTimer = null;
+    let currentSpeakingAudio = AUDIO_BANK.speakingFoundation[0];
     const extendedFollowUps = [
       'That sounds interesting! How often do you do this activity, and who do you usually do it with?',
       'Great. Imagine you had a completely free weekend. What would you choose to do, and why?',
@@ -952,6 +1002,10 @@
       'Great! What do you like? You can answer: “I like music, games or animals.”',
       'Thank you! You did very well. The test will choose a comfortable starting level for you.'
     ];
+    $('#play-speaking-question').addEventListener('click', () => {
+      if (!audioPlayer.paused) { stopAudio(); return; }
+      playAudio(currentSpeakingAudio, $('#play-speaking-question'), $('#speaking-audio-status'));
+    });
     function sendSpeaking() {
       const input = $('#speaking-input'); const text = input.value.trim();
       if (!text) { $('#speaking-error').textContent = 'Fale ou digite uma resposta antes de enviar.'; return; }
@@ -964,11 +1018,12 @@
       finalRecognitionText = '';
       const followUps = state.track === 'extended' ? extendedFollowUps : foundationFollowUps;
       const reply = followUps[Math.min(speakingStep, followUps.length - 1)]; speakingStep++;
+      const speakingAudioBank = state.track === 'extended' ? AUDIO_BANK.speakingExtended : AUDIO_BANK.speakingFoundation;
+      currentSpeakingAudio = speakingAudioBank[Math.min(speakingStep, speakingAudioBank.length - 1)];
       $('#messages').insertAdjacentHTML('beforeend', `<div class="bubble ai"></div>`);
       $('#messages').lastElementChild.textContent = reply;
       $('#messages').scrollTop = $('#messages').scrollHeight;
-      clearTimeout(replyAudioTimer);
-      replyAudioTimer = setTimeout(() => speakText(reply), 350);
+      playAudio(currentSpeakingAudio, $('#play-speaking-question'), $('#speaking-audio-status'));
     }
     $('#send-speaking').addEventListener('click', sendSpeaking);
     $('#speaking-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendSpeaking(); } });
