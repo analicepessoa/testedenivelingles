@@ -569,6 +569,7 @@
                 <div><span>Perfil de turma</span><strong id="group-recommendation">Teens</strong></div>
               </div>
               <p class="profile-explanation" id="group-explanation">A recomendação considera idade e perfil de autonomia.</p>
+              <div class="notice" id="skill-floor-warning" hidden></div>
               <div class="notice"><strong>Como ler o resultado:</strong> o CEFR mostra a proficiência atual. O ponto de entrada indica onde o aluno começa na sequência dos livros da All Net e, por isso, não precisa ter o mesmo número do nível técnico.</div>
               <div class="confidence"><strong>Confiança da avaliação: <span id="confidence-value">82%</span></strong><br><span id="review-note">Revisão humana recomendada antes da matrícula definitiva.</span></div>
             </div>
@@ -1067,14 +1068,45 @@
       return ['C2','Avançado','Você compreende e se expressa com alto grau de precisão e naturalidade.'];
     }
 
-    function schoolEntryFromLevel(cefr, group) {
-      if (group.startsWith('Adulto')) {
-        if (['Pré-A1','A1','A2'].includes(cefr)) return 'Basic 1';
-        if (['B1','B2'].includes(cefr)) return 'Intermediate 1';
-        return 'Advanced 1';
+    function schoolEntryDecision(cefr, group, skillScores) {
+      if (group.startsWith('Teens')) return { entry: 'A definir — matriz Teens pendente', constrained: false, reason: '' };
+      if (!group.startsWith('Adulto')) return { entry: 'A definir — prontidão infantil', constrained: false, reason: '' };
+
+      const skillNames = {
+        reading: 'Reading',
+        listening: 'Listening',
+        writing: 'Writing',
+        speaking: 'Speaking'
+      };
+      const formatSkills = keys => keys.map(key => `${skillNames[key]} (${levelFromScore(skillScores[key])[0]})`).join(', ');
+
+      if (['Pré-A1','A1','A2'].includes(cefr)) {
+        return { entry: 'Basic 1', constrained: false, reason: '' };
       }
-      if (group.startsWith('Teens')) return 'A definir — matriz Teens pendente';
-      return 'A definir — prontidão infantil';
+
+      if (['B1','B2'].includes(cefr)) {
+        const belowMinimum = Object.keys(skillScores).filter(key => skillScores[key] < 34);
+        if (belowMinimum.length) {
+          return {
+            entry: 'Basic 1',
+            constrained: true,
+            reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(belowMinimum)} ficou abaixo do mínimo A2 necessário para iniciar o Intermediate 1. A recomendação prioriza a consolidação dessa habilidade.`
+          };
+        }
+        return { entry: 'Intermediate 1', constrained: false, reason: '' };
+      }
+
+      const belowB1 = Object.keys(skillScores).filter(key => skillScores[key] < 48);
+      const productiveBelowB2 = ['writing','speaking'].filter(key => skillScores[key] < 64);
+      const advancedLimiters = [...new Set([...belowB1, ...productiveBelowB2])];
+      if (advancedLimiters.length) {
+        return {
+          entry: 'Intermediate 1',
+          constrained: true,
+          reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(advancedLimiters)} ainda não atingiu o piso necessário para o Advanced 1. A recomendação é fortalecer essa habilidade no Intermediate 1.`
+        };
+      }
+      return { entry: 'Advanced 1', constrained: false, reason: '' };
     }
 
     function groupRecommendation() {
@@ -1109,13 +1141,18 @@
       const overall = !state.demo && state.track === 'foundation' ? Math.min(33, rawOverall) : rawOverall;
       const [cefr, broad, description] = levelFromScore(overall);
       const [group, review, groupExplanation] = groupRecommendation();
-      const className = schoolEntryFromLevel(cefr, group);
+      const skillScores = { reading, listening, writing, speaking };
+      const placement = schoolEntryDecision(cefr, group, skillScores);
+      const className = placement.entry;
       const confidence = state.demo ? 82 : Math.max(61, Math.min(89, 65 + state.speaking.length * 5 + (state.writing.split(/\s+/).length > 35 ? 7 : 0)));
 
       $('#result-name').textContent = state.name;
       $('#cefr-level').textContent = cefr; $('#broad-level').textContent = broad; $('#level-description').textContent = description;
       $('#class-recommendation').textContent = className; $('#group-recommendation').textContent = group; $('#confidence-value').textContent = confidence + '%';
       $('#group-explanation').textContent = groupExplanation;
+      const floorWarning = $('#skill-floor-warning');
+      floorWarning.hidden = !placement.constrained;
+      floorWarning.innerHTML = placement.constrained ? `<strong>Habilidade limitante:</strong> ${placement.reason}` : '';
       $('#review-note').textContent = review ? 'Revisão humana necessária por se tratar de uma faixa de transição.' : 'Validação breve do professor recomendada antes da matrícula.';
 
       const skills = [
@@ -1129,6 +1166,7 @@
       const studentProfileAverage = (state.groupScore / $$('.profile-answer').length).toFixed(1);
       const teacherProfileNote = state.teacherCount ? `Observação profissional registrada em ${state.teacherCount} indicadores.` : 'Sem observação profissional; confirmar em conversa breve.';
       $('#teacher-rows').innerHTML = skills.map(([name, score, note]) => `<tr><td><strong>${name}</strong></td><td>${score}% • ${levelFromScore(score)[0]}</td><td>${note}</td></tr>`).join('')
+        + (placement.constrained ? `<tr><td><strong>Critério de entrada</strong></td><td>${className}</td><td>${placement.reason}</td></tr>` : '')
         + `<tr><td><strong>Perfil de turma</strong></td><td>${group}</td><td>Autonomia declarada: ${studentProfileAverage} de 3. ${teacherProfileNote}</td></tr>`;
     }
 
