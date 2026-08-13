@@ -1085,25 +1085,23 @@
       }
 
       if (['B1','B2'].includes(cefr)) {
-        const belowMinimum = Object.keys(skillScores).filter(key => skillScores[key] < 34);
+        const belowMinimum = Object.keys(skillScores).filter(key => skillScores[key] < 48);
         if (belowMinimum.length) {
           return {
             entry: 'Basic 1',
             constrained: true,
-            reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(belowMinimum)} ficou abaixo do mínimo A2 necessário para iniciar o Intermediate 1. A recomendação prioriza a consolidação dessa habilidade.`
+            reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(belowMinimum)} ainda não atingiu B1, nível mínimo exigido em cada habilidade para iniciar o Intermediate 1. A recomendação prioriza a consolidação dessa base no Basic 1.`
           };
         }
         return { entry: 'Intermediate 1', constrained: false, reason: '' };
       }
 
-      const belowB1 = Object.keys(skillScores).filter(key => skillScores[key] < 48);
-      const productiveBelowB2 = ['writing','speaking'].filter(key => skillScores[key] < 64);
-      const advancedLimiters = [...new Set([...belowB1, ...productiveBelowB2])];
+      const advancedLimiters = Object.keys(skillScores).filter(key => skillScores[key] < 64);
       if (advancedLimiters.length) {
         return {
           entry: 'Intermediate 1',
           constrained: true,
-          reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(advancedLimiters)} ainda não atingiu o piso necessário para o Advanced 1. A recomendação é fortalecer essa habilidade no Intermediate 1.`
+          reason: `O desempenho geral alcançou ${cefr}, mas ${formatSkills(advancedLimiters)} ainda não atingiu B2, nível mínimo exigido em cada habilidade para iniciar o Advanced 1. A recomendação é fortalecer essa base no Intermediate 1.`
         };
       }
       return { entry: 'Advanced 1', constrained: false, reason: '' };
